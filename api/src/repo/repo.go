@@ -7,17 +7,30 @@ type TaskNode struct {
 }
 
 type BoardNode struct {
-	Id       int        `json:"boardid"`
-	Name     string     `json:"boardname"`
-	TaskHead *TaskNode  `json:"tasks"`
-	Next     *BoardNode `json:"next"`
+	Id       int        
+	Name     string     
+	TaskHead *TaskNode  
+	Next     *BoardNode 
 }
 
 type WorkspaceNode struct {
+	Id        int            
+	Name      string         
+	BoardHead *BoardNode     
+	Next      *WorkspaceNode 
+}
+
+type WorkspaceDAO struct {
 	Id        int            `json:"workspaceid"`
 	Name      string         `json:"workspacename"`
-	BoardHead *BoardNode     `json:"boards"`
-	Next      *WorkspaceNode `json:"next"`
+	Next      *WorkspaceDAO `json:"next"`
+}
+
+type BoardDAO struct {
+	Id       int        `json:"boardid"`
+	Name     string     `json:"boardname"`
+	TaskHead []string  `json:"tasks"`
+	Next     *BoardDAO `json:"next"`
 }
 
 type Repository struct {
@@ -59,7 +72,6 @@ func (r Repository) AddTask(workspaceid int, boardid int, task string) {
 }
 
 func (r Repository) RemoveTask(workspaceid int, boardid int, tasks []string) {
-
 }
 
 func (r *Repository) AddBoard(title string, workspaceid int) {
@@ -164,21 +176,39 @@ func (r *Repository) RemoveWorkspace(workspaceid int) {
 	}
 }
 
-func CreateRepository() *Repository {
-	var repository *Repository = &Repository{
-		Workspaces: &WorkspaceNode{
-			Id: 0,
-			BoardHead: &BoardNode{
-				Id: 0,
-				TaskHead: &TaskNode{
-					Id:   0,
-					Next: nil,
-				},
+func(r *Repository) FetchWorkspaces()*WorkspaceDAO{
+	var workspaces_head *WorkspaceDAO = nil
+	var aux_workpsaces *WorkspaceNode = r.Workspaces
+
+	for aux_workpsaces != nil{
+		if workspaces_head == nil {
+			workspaces_head = &WorkspaceDAO{
+				Id: aux_workpsaces.Id,
+				Name: aux_workpsaces.Name,
 				Next: nil,
-			},
-			Next: nil,
-		},
+			}
+		}else{
+			var aux_return *WorkspaceDAO = workspaces_head
+
+			for aux_return.Next != nil {
+				aux_return = aux_return.Next
+			}
+
+			aux_return.Next = &WorkspaceDAO{
+				Id: aux_workpsaces.Id,
+				Name: aux_return.Name,
+				Next: nil,
+			}
+		}
+
+		aux_workpsaces = aux_workpsaces.Next
 	}
 
-	return repository
+	return workspaces_head
+}
+
+func(r *Repository) FetchBoard(boardid int)*BoardNode{
+	var board_head *BoardNode = nil
+
+	return board_head
 }

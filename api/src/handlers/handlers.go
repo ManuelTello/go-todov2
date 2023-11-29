@@ -63,6 +63,22 @@ func WorkspacesAdd(repository *repo.Repository) http.Handler {
 func WorkspaceFetch(repository *repo.Repository) http.Handler {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
+			var body helpers.Body = lib.MapBody(r.Body)
+
+			switch body.Context["target"] {
+			case "workspaces":
+				var workspaces *repo.WorkspaceDAO = repository.FetchWorkspaces()
+				data, err := json.Marshal(workspaces)
+				
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+				} else {
+					w.Header().Add("Content-type", "application/json")
+					w.Write(data)
+				}
+			case "boards":
+			}
+			/*
 			data, err := json.Marshal(repository.Workspaces)
 
 			if err != nil {
@@ -72,6 +88,7 @@ func WorkspaceFetch(repository *repo.Repository) http.Handler {
 				w.WriteHeader(http.StatusOK)
 				w.Write(data)
 			}
+			*/
 		} else {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte("404 not found"))
